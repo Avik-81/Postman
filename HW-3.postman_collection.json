@@ -1,0 +1,527 @@
+{
+	"info": {
+		"_postman_id": "0631a5ca-5288-4151-b0c6-e0e5d866ad3a",
+		"name": "HW-3",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19481562"
+	},
+	"item": [
+		{
+			"name": "HW_3/Task_1/login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"//Приходящий токен необходимо передать во все остальные запросы\r",
+							"let envToken = \"/s34lfgbj/Andrey81/jjd909/77718kjkWpqc3206pass1981393270evny\"\r",
+							"pm.environment.set(\"token\", envToken)"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "login",
+							"value": "Andrey81",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "pass1981",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://162.55.220.72:5005/login",
+					"protocol": "http",
+					"host": [
+						"162",
+						"55",
+						"220",
+						"72"
+					],
+					"port": "5005",
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HW_3/Task_2/user_info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Проверка структуры json в ответе.\r",
+							"let jsonData = pm.response.json()\r",
+							"console.log(jsonData)\r",
+							"\r",
+							"// Проверка, что JSON-ответ содержит все необходимые ключи \r",
+							"pm.test(\"Response has all required keys\", function () { \r",
+							"    pm.expect(jsonData).to.have.all.keys(\"person\", \"qa_salary_after_12_months\", \"qa_salary_after_6_months\", \"start_qa_salary\")});\r",
+							"\r",
+							"    \r",
+							"// Проверка структуры ключа 'person'\r",
+							"pm.test(\"Person object has all required keys\", function () { \r",
+							"    pm.expect(jsonData.person).to.have.all.keys('u_age', 'u_name', 'u_salary_1_5_year'); }); \r",
+							"   \r",
+							"  // Проверка типов данных верхнего уровня \r",
+							"  pm.test(\"Check data types of top-level response keys\", function () { \r",
+							"    pm.expect(jsonData.qa_salary_after_12_months).to.be.a('number'); \r",
+							"    pm.expect(jsonData.qa_salary_after_6_months).to.be.a('number'); \r",
+							"    pm.expect(jsonData.start_qa_salary).to.be.a('number'); }); \r",
+							"    \r",
+							"    // Проверка типов данных внутри 'person' \r",
+							"    pm.test(\"Check data types of person object keys\", function () { \r",
+							"        pm.expect(jsonData.person.u_age).to.be.a('number'); \r",
+							"        pm.expect(jsonData.person.u_salary_1_5_year).to.be.a('number'); \r",
+							"        pm.expect(jsonData.person.u_name).to.be.an('array'); });\r",
+							"    \r",
+							"    // Проверка, что элементы массива 'u_name' имеют ожидаемые типы данных \r",
+							"     pm.test(\"Check Array elements u_name ohas all required data type\", function () { \r",
+							"    pm.expect(jsonData.person.u_name[0]).to.be.a('string'); \r",
+							"    pm.expect(jsonData.person.u_name[1]).to.be.a('number'); \r",
+							"    pm.expect(jsonData.person.u_name[2]).to.be.a('number'); });\r",
+							"\r",
+							"\r",
+							"//В ответе указаны коэффициенты умножения salary, напишите тесты по проверке правильности результата перемножения на коэффициент.\r",
+							"let regData = JSON.parse(pm.request.body.raw)\r",
+							"console.log(\"request=\", regData)\r",
+							"\r",
+							"pm.test(\"Check qa_salary_after_6_months = request salary*2\", function () {\r",
+							"pm.expect(jsonData.qa_salary_after_6_months).to.eql(regData.salary*2);\r",
+							"});\r",
+							"console.log(jsonData.qa_salary_after_6_months)\r",
+							"pm.test(\"Check qa_salary_after_12_months = request salary*2.9\", function () {\r",
+							"pm.expect(jsonData.qa_salary_after_12_months).to.eql(+regData.salary*2.9);\r",
+							"});\r",
+							"pm.test(\"Check u_salary_1.5_year = request salary*1.5 year\", function () {\r",
+							"pm.expect(jsonData.person.u_salary_1_5_year).to.eql(+regData.salary*4);\r",
+							"});\r",
+							"console.log(\"u_salary_1.5_year =\", jsonData.person.u_salary_1_5_year)\r",
+							"\r",
+							"let envSalary_1_5_year = jsonData.person.u_salary_1_5_year\r",
+							"pm.environment.set(\"salary1_5\", envSalary_1_5_year)\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"age\" : 43,\r\n\"salary\" : 1600,\r\n\"name\" : \"Andrey\",\r\n\"auth_token\" :\"{{token}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://162.55.220.72:5005/user_info",
+					"protocol": "http",
+					"host": [
+						"162",
+						"55",
+						"220",
+						"72"
+					],
+					"port": "5005",
+					"path": [
+						"user_info"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HW_3/Task_3/new_data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Проверка структуры json в ответе.\r",
+							"let jsonData = pm.response.json()\r",
+							"console.log(jsonData)\r",
+							"\r",
+							"// Проверка, что JSON-ответ содержит все необходимые ключи \r",
+							"pm.test(\"Response has all required keys\", function () { \r",
+							"    pm.expect(jsonData).to.have.all.keys(\"age\", \"name\", \"salary\")});\r",
+							"\r",
+							"    \r",
+							"  // Проверка типов данных  \r",
+							"  pm.test(\"Check data types of response keys\", function () { \r",
+							"    pm.expect(jsonData.age).to.be.a('number'); \r",
+							"    pm.expect(jsonData.name).to.be.a('string'); \r",
+							"     }); \r",
+							"    \r",
+							"    \r",
+							"    // Проверка, что элементы массива 'salary' имеют ожидаемые типы данных \r",
+							"     pm.test(\"Check Array elements salary has all required data type\", function () { \r",
+							"    pm.expect(jsonData.salary[0]).to.be.a('number'); \r",
+							"    pm.expect(jsonData.salary[1]).to.be.a('string'); \r",
+							"    pm.expect(jsonData.salary[2]).to.be.a('string'); });\r",
+							"\r",
+							"    //В ответе указаны коэффициенты умножения salary, напишите тесты по проверке правильности результата перемножения на коэффициент.\r",
+							"    let regData = request.data\r",
+							"console.log(\"request=\", regData)\r",
+							"\r",
+							"pm.test(\"Check str(salary*2)[1] = request salary*2\", function () {\r",
+							"pm.expect(+jsonData.salary[1]).to.eql(regData.salary*2);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check str(salary*3)[2] = request salary*3\", function () {\r",
+							"pm.expect(+jsonData.salary[2]).to.eql(regData.salary*3);\r",
+							"});\r",
+							"\r",
+							"//проверить, что 2-й элемент массива salary больше 1-го и 0-го\r",
+							"pm.test(\"Check salary[2] > request salary[2] and [3]\", function () {\r",
+							"pm.expect(+jsonData.salary[2]).to.be.above(+jsonData.salary[1]);\r",
+							"pm.expect(+jsonData.salary[2]).to.be.above(+jsonData.salary[0]);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "age",
+							"value": "43",
+							"type": "text"
+						},
+						{
+							"key": "salary",
+							"value": "1600",
+							"type": "text"
+						},
+						{
+							"key": "name",
+							"value": "Andrey",
+							"type": "text"
+						},
+						{
+							"key": "auth_token",
+							"value": "{{token}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://162.55.220.72:5005/new_data",
+					"protocol": "http",
+					"host": [
+						"162",
+						"55",
+						"220",
+						"72"
+					],
+					"port": "5005",
+					"path": [
+						"new_data"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HW_3/Task_4/test_pet_info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Проверка структуры json в ответе.\r",
+							"let jsonData = pm.response.json()\r",
+							"console.log(jsonData)\r",
+							"\r",
+							"// Проверка, что JSON-ответ содержит все необходимые ключи \r",
+							"pm.test(\"Response has all required keys\", function () { \r",
+							"    pm.expect(jsonData).to.have.all.keys(\"age\", \"name\", \"daily_food\", \"daily_sleep\" )});\r",
+							"\r",
+							"    \r",
+							"  // Проверка типов данных  \r",
+							"  pm.test(\"Check data types of response keys\", function () { \r",
+							"    pm.expect(jsonData.age).to.be.a('number'); \r",
+							"    pm.expect(jsonData.name).to.be.a('string'); \r",
+							"    pm.expect(jsonData.daily_food).to.be.a('number');\r",
+							"    pm.expect(jsonData.daily_sleep).to.be.a('number');\r",
+							"     }); \r",
+							"    \r",
+							"     \r",
+							"    //В ответе указаны коэффициенты умножения weight, напишите тесты по проверке правильности результата перемножения на коэффициент.\r",
+							"    let regData = request.data\r",
+							"console.log(\"request=\", regData)\r",
+							"\r",
+							"pm.test(\"Check daily_food = request weight*0.12\", function () {\r",
+							"pm.expect(+jsonData.daily_food).to.eql(regData.weight*0.012);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Check daily_sleep = request weight*2.5\", function () {\r",
+							"pm.expect(+jsonData.daily_sleep).to.eql(regData.weight*2.5);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"// //проверить, что 2-й элемент массива salary больше 1-го и 0-го\r",
+							"// pm.test(\"Check salary[2] > request salary[2] and [3]\", function () {\r",
+							"// pm.expect(+jsonData.salary[2]).to.be.above(+jsonData.salary[1]);\r",
+							"// pm.expect(+jsonData.salary[2]).to.be.above(+jsonData.salary[0]);\r",
+							"// });\r",
+							"\r",
+							"\r",
+							"\r",
+							"// console.log(\"salary res =\", jsonData.salary[1])\r",
+							"// console.log(\"salary reg =\", regData)\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "age",
+							"value": "43",
+							"type": "text"
+						},
+						{
+							"key": "weight",
+							"value": "78",
+							"type": "text"
+						},
+						{
+							"key": "name",
+							"value": "Andrey",
+							"type": "text"
+						},
+						{
+							"key": "auth_token",
+							"value": "{{token}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://162.55.220.72:5005/test_pet_info",
+					"protocol": "http",
+					"host": [
+						"162",
+						"55",
+						"220",
+						"72"
+					],
+					"port": "5005",
+					"path": [
+						"test_pet_info"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HW_3/Task_5/get_test_user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Проверка структуры json в ответе.\r",
+							"let jsonData = pm.response.json()\r",
+							"console.log(jsonData)\r",
+							"\r",
+							"// Проверка, что JSON-ответ содержит все необходимые ключи \r",
+							"pm.test(\"Response has all required keys\", function () { \r",
+							"    pm.expect(jsonData).to.have.all.keys(\"age\", \"name\", \"salary\", \"family\")});\r",
+							"\r",
+							"    \r",
+							" // Проверка структуры ключа 'family' \r",
+							"pm.test(\"Response 'family' has all required keys\", function () { \r",
+							"    pm.expect(jsonData.family).to.have.all.keys(\"children\", \"u_salary_1_5_year\")});\r",
+							" \r",
+							"  // Проверка типов данных верхнего уровня\r",
+							"  pm.test(\"Check data types of response keys\", function () { \r",
+							"    pm.expect(jsonData.age).to.be.a('string'); \r",
+							"    pm.expect(jsonData.name).to.be.a('string'); \r",
+							"    pm.expect(jsonData.salary).to.be.a('number'); \r",
+							"    }); \r",
+							"\r",
+							"     // Проверка типов данных family\r",
+							"  pm.test(\"Check data types of response keys\", function () { \r",
+							"    pm.expect(jsonData.family.children).to.be.an('array'); \r",
+							"    pm.expect(jsonData.family.u_salary_1_5_year).to.be.a('number'); \r",
+							"     }); \r",
+							"\r",
+							"\r",
+							"    // Проверка, что элементы массива 'children' имеют ожидаемые типы данных \r",
+							"     pm.test(\"Check Array elements salary has all required data type\", function () { \r",
+							"    pm.expect(jsonData.family.children[0][0]).to.be.a('string'); \r",
+							"    pm.expect(jsonData.family.children[0][1]).to.be.a('number'); \r",
+							"     pm.expect(jsonData.family.children[1][0]).to.be.a('string'); \r",
+							"    pm.expect(jsonData.family.children[1][1]).to.be.a('number'); \r",
+							"    });\r",
+							"\r",
+							"//Проверить что занчение поля name = значению переменной name из окружения\r",
+							"let envName = pm.environment.get(\"name\")\r",
+							"pm.test(\"Check name = envName\", function () {\r",
+							"pm.expect(jsonData.name).to.eql(envName);\r",
+							"});\r",
+							"\r",
+							"//.Проверить что занчение поля age в ответе соответсвует отправленному в запросе значению поля age\r",
+							"let regData = request.data\r",
+							"pm.test(\"Check age reg = resp age\", function () {\r",
+							"pm.expect(jsonData.age).to.eql(regData.age);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "age",
+							"value": "43",
+							"type": "text"
+						},
+						{
+							"key": "salary",
+							"value": "{{salary1_5}}",
+							"type": "text"
+						},
+						{
+							"key": "name",
+							"value": "Andrey",
+							"type": "text"
+						},
+						{
+							"key": "auth_token",
+							"value": "{{token}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://162.55.220.72:5005/get_test_user",
+					"protocol": "http",
+					"host": [
+						"162",
+						"55",
+						"220",
+						"72"
+					],
+					"port": "5005",
+					"path": [
+						"get_test_user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "HW_3/Task_6/currency",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "auth_token",
+							"value": "{{token}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://162.55.220.72:5005/currency",
+					"protocol": "http",
+					"host": [
+						"162",
+						"55",
+						"220",
+						"72"
+					],
+					"port": "5005",
+					"path": [
+						"currency"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"pm.test(\"Status code is 200\", function () {\r",
+					"    pm.response.to.have.status(200);\r",
+					"});"
+				]
+			}
+		}
+	]
+}
